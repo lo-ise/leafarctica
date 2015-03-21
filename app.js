@@ -1,5 +1,5 @@
 function init(){
-
+        
 	var crs = new L.Proj.CRS('EPSG:3031', '+proj=stere +lat_0=-90 +lat_ts=-71 +lon_0=0 +k=1 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs', {
 		resolutions: [
 		  8192, 4096, 2048, 1024, 512, 256
@@ -52,7 +52,8 @@ function init(){
 	    layers: [modisLayer],
 	    center: [-90, 0],
 	    zoom: 0,
-            crs: crs
+            crs: crs,
+            maxZoom: 5
 	});
 
 	
