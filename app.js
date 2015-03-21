@@ -62,11 +62,11 @@ function init(){
 	L.graticule().addTo(map);
         
 	window.crs = crs;	
-	var southWest = crs.projection.unproject({x:-4194304, y:-4194304}); 
-	var northEast = crs.projection.unproject({x:4194304, y:4194304});
+	var southWest = crs.projection.unproject({x:-4194304, y:-4194304}, map.getMaxZoom()); 
+	var northEast = crs.projection.unproject({x:4194304, y:4194304}, map.getMaxZoom());
 	
-	map.setMaxBounds(new L.LatLngBounds(southWest, northEast));
-
+	//map.setMaxBounds(new L.LatLngBounds(southWest, northEast));
+        
 
 
 }
