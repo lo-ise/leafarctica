@@ -70,40 +70,44 @@ function init(){
 		return Math.pow(2, zoom)*v;
 	}
         
-	map.on('move', function(e){
-	    var z = map.getZoom();
-	    var mx = getZoom(z, 1024);
-	    var my = getZoom(z, 1024);
+  map.on('move', function(e){
+    var z = map.getZoom();
+    var mx = getZoom(z, 1024);
+    var my = getZoom(z, 1024);
 
-	    var b = map.getPixelBounds();
-	    if(b.min.x < 0 || b.min.y < 0 || b.max.x > mx || b.max.y > my){
-		var mapEl = document.querySelector('#map');
-		var elB = mapEl.getBoundingClientRect();
-		var x, y;
+    var b = map.getPixelBounds();
+    if(b.min.x < 0 || b.min.y < 0 || b.max.x > mx || b.max.y > my){
+      var mapEl = document.querySelector('#map');
+      var elB = mapEl.getBoundingClientRect();
+      var x, y;
 
-	        if(b.min.x < 0) {
-			x = elB.width/2
-	        }
-	        else if(b.max.x > mx) {
-			x = mx-(elB.width/2)
-	        } else {
-			x = map.project(map.getCenter()).x;
-		}
+      if(mx < elB.width) {
+        x = (mx/2)
+      } else if(b.min.x < 0) {
+        x = elB.width/2
+      }
+      else if(b.max.x > mx) {
+        x = mx-(elB.width/2)
+      } else {
+        x = map.project(map.getCenter()).x;
+      }
 
-	        if(b.min.y < 0) {
-			y = elB.height/2
-                }
-	        else if(b.max.y > my) {
-			y = my-(elB.height/2)
-	        } else {
-			y = map.project(map.getCenter()).y;
-		}
+      if(my < elB.height) {
+        y = (my/2)
+      } else if(b.min.y < 0) {
+        y = elB.height/2
+      }
+      else if(b.max.y > my) {
+        y = my-(elB.height/2)
+      } else {
+        y = map.project(map.getCenter()).y;
+      }
 
-		var pos = map.unproject(L.point(x, y));
-		map.setView(pos, map.getZoom(), {animate:false})
-	    }
+      var pos = map.unproject(L.point(x, y));
+      map.setView(pos, map.getZoom(), {animate:false})
+    }
 
-	})
+  })
 
 }
 
