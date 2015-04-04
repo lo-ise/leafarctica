@@ -1,114 +1,86 @@
-function init(){
-         
-	var resolutions = [
-		  8192, 4096, 2048, 1024, 512, 256
-		]
-	var crs = new L.Proj.CRS('EPSG:3031', '+proj=stere +lat_0=-90 +lat_ts=-71 +lon_0=0 +k=1 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs', {
-		resolutions: resolutions,
-                origin: [-4194304, 4194304],
-                bounds: L.bounds (
-                    [-4194304, -4194304],
-                    [4194304, 4194304]
-                )
-	});
-       
-        var template =
-            "http://map1{s}.vis.earthdata.nasa.gov/wmts-antarctic/" +
-            "{layer}/default/{time}/{tileMatrixSet}/{z}/{y}/{x}.jpg";
+function init() {
 
-        function genModisLayer(time){
-		return L.tileLayer(template, {
-		    layer: "MODIS_Aqua_CorrectedReflectance_TrueColor",
-		    tileMatrixSet: "EPSG3031_250m",
-		    format: "image%2Fjpeg",
-		    time: time,
-		    tileSize: 512,
-		    subdomains: "abc",
-		    noWrap: true,
-		    continuousWorld: true,
-		    attribution:
-			"<a href='https://earthdata.nasa.gov/gibs'>" +
-			"NASA EOSDIS GIBS</a>&nbsp;&nbsp;&nbsp;" +
-			"<a href='https://github.com/nasa-gibs/web-examples/blob/release/leaflet/js/antarctic-epsg3031.js'>" +
-			"View Source" +
-			"</a>"
-		});
-	}
+  // Map resolutions that NASA GIBS specify
+  var resolutions = [
+    8192, 4096, 2048, 1024, 512, 256
+  ];
 
-	var el = document.querySelector('#date')
-	el.addEventListener('change', function(){
-	    map.removeLayer(modisLayer)
-            console.log(el.value)
-	    modisLayer = genModisLayer(el.value)
-	    map.addLayer(modisLayer)
-	})
+  // The polar projection
+  var crs = new L.Proj.CRS('EPSG:3031', '+proj=stere +lat_0=-90 +lat_ts=-71 +lon_0=0 +k=1 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs', {
+    resolutions: resolutions,
+    origin: [-4194304, 4194304],
+    bounds: L.bounds (
+      [-4194304, -4194304],
+      [4194304, 4194304]
+    )
+  });
 
-	var modisLayer = genModisLayer('2014-12-01')
-        el.value = '2014-12-01'
+  // The URL definition
+  var GIBSServiceUrl =
+    "http://map1{s}.vis.earthdata.nasa.gov/wmts-antarctic/{layer}/default/{time}/{tileMatrixSet}/{z}/{y}/{x}.jpg";
 
+  // A function which generate a MODIS leaflet layer for a single datetime. We
+  // need this because we need to generate a new layer when we change the
+  // datetime <input>
+  function genModisLayer(time){
+    return L.tileLayer(GIBSServiceUrl, {
+      layer: "MODIS_Aqua_CorrectedReflectance_TrueColor",
+      tileMatrixSet: "EPSG3031_250m",
+      format: "image%2Fjpeg",
+      time: time,
+      tileSize: 512,
+      subdomains: "abc",
+      noWrap: true,
+      continuousWorld: true,
+      attribution:
+        "<a href='https://earthdata.nasa.gov/gibs'>" +
+      "NASA EOSDIS GIBS</a>&nbsp;&nbsp;&nbsp;" +
+        "<a href='https://github.com/nasa-gibs/web-examples/blob/release/leaflet/js/antarctic-epsg3031.js'>" +
+      "View Source" +
+        "</a>"
+    });
+  }
 
-	var map = new L.Map('map', {
-	    continuousWorld: true,
-	    worldCopyJump: false,
-	    layers: [modisLayer],
-	    center: [-90, 0],
-	    zoom: 0,
-            crs: crs,
-            maxZoom: 5
-	});
+  // Get a reference to the <input type="date">
+  var dateEl = document.querySelector('#date');
 
-	
-	window.map = map;
-        
-	var hash = new L.Hash(map);
-	L.graticule().addTo(map);
-        
-	window.crs = crs;	
-	
-	
-	function getZoom(zoom, v) {
-		return Math.pow(2, zoom)*v;
-	}
-        
-  map.on('move', function(e){
-    var z = map.getZoom();
-    var mx = getZoom(z, 1024);
-    var my = getZoom(z, 1024);
-
-    var b = map.getPixelBounds();
-    if(b.min.x < 0 || b.min.y < 0 || b.max.x > mx || b.max.y > my){
-      var mapEl = document.querySelector('#map');
-      var elB = mapEl.getBoundingClientRect();
-      var x, y;
-
-      if(mx < elB.width) {
-        x = (mx/2)
-      } else if(b.min.x < 0) {
-        x = elB.width/2
-      }
-      else if(b.max.x > mx) {
-        x = mx-(elB.width/2)
-      } else {
-        x = map.project(map.getCenter()).x;
-      }
-
-      if(my < elB.height) {
-        y = (my/2)
-      } else if(b.min.y < 0) {
-        y = elB.height/2
-      }
-      else if(b.max.y > my) {
-        y = my-(elB.height/2)
-      } else {
-        y = map.project(map.getCenter()).y;
-      }
-
-      var pos = map.unproject(L.point(x, y));
-      map.setView(pos, map.getZoom(), {animate:false})
-    }
-
+  // On date change generate a new layer of the current date and remove the old layer
+  dateEl.addEventListener('change', function() {
+    map.removeLayer(modisLayer);
+    modisLayer = genModisLayer(dateEl.value);
+    map.addLayer(modisLayer);
   })
+
+  // Set the current <input type="date"> and generate the initial layer
+  var modisLayer = genModisLayer('2014-12-01')
+  dateEl.value = '2014-12-01';
+
+  // Finally construct the map and add our initial modis layer
+  var map = new L.Map('map', {
+    // continuousWorld because polar crosses dateline
+    continuousWorld: true,
+    worldCopyJump: false,
+    layers: [
+      // Initial layer added here
+      modisLayer
+    ],
+    center: [-90, 0],
+    zoom: 0,
+    // Projection set here
+    crs: crs,
+    maxZoom: 5
+  });
+
+  // Module which add a url hash with the current lat/lng
+  var hash = new L.Hash(map);
+
+  // Module which adds graticule (lat/lng lines)
+  L.graticule().addTo(map);
+
+  // Initialise bounds hack
+  constrainMapToBounds(map, crs, L.point(4194304, -4194304));
 
 }
 
-document.addEventListener("DOMContentLoaded",init)
+// When the DOM is ready initialise the map
+document.addEventListener("DOMContentLoaded", init);
