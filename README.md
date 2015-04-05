@@ -3,9 +3,9 @@ Leafarctica is an example leaflet map, displaying daily MODIS satelite data from
 
 
 ## Usage
-To use, simply [clone this repo]() and open `index.html` you can also see it running at: <http://lo-ise.github.io/leafarctica>
+To use, simply clone this repo and open `index.html` you can also see it running at: <http://lo-ise.github.io/leafarctica>
 
-You can read all about it over at <http://remotesensing.io/leafarctica-polar-maps-in-leaflet>
+You can read all about it over at <http://remotesensing.io/2015/04/leafarctica-polar-projections-and-leaflet>
 
 
 ## License
